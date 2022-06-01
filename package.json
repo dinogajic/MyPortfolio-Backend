@@ -1,0 +1,31 @@
+{
+  "name": "myportfolio-backend",
+  "version": "1.0.0",
+  "description": "MyPortfolio je web aplikacija koja omogućuje korisnicima da na jednom mjestu kreiraju prikaz svojih završenih projekata odnosno portfelje. Svaki korisnik će se moći registrirati u aplikaciju, dodavati nove portfelje, također moći će unositi svoje osobne podatke. Pri izradi portfelja, s obzirom na potrebe, korisnik će imati više template-a za izbor (prikaz logotipova, postera, web-stranica te raznih programskih proizvoda). Nakon kreiranja portfelja, generirati će se link zajedno sa svim informacijama te će biti javno dostupan za prikaz.",
+  "main": "index.js",
+  "scripts": {
+    "serve": "nodemon --exec babel-node src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dinogajic/MyPortfolio-Backend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dinogajic/MyPortfolio-Backend/issues"
+  },
+  "homepage": "https://github.com/dinogajic/MyPortfolio-Backend#readme",
+  "dependencies": {
+    "express": "^4.18.1",
+    "mongodb": "4.5"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.18.2",
+    "@babel/node": "^7.17.10",
+    "@babel/preset-env": "^7.18.2",
+    "nodemon": "^2.0.16"
+  }
+}
