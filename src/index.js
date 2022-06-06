@@ -1,6 +1,10 @@
 import express from "express";
+import cors from "cors";
+import bcrypt from "bcrypt";
 
 const app = express();
+app.use(cors())
+app.use(express.json())
 const port = 3000;
 const { MongoClient } = require("mongodb");
 app.listen(port)
@@ -13,19 +17,38 @@ const client = new MongoClient(uri, {
 });
 
 async function run() {
-  try {
-    app.get("/", async(req, res) => {
+  app.get("/user", async(req, res) => {
       await client.connect()
       let database = client.db('myportfolio'); 
-      let cursor = await database.collection("user").find()
-      let results = await cursor.toArray()
+      let doc = await database.collection("user").find().toArray()
 
-      console.log(results)    
-      res.send(results);
+      res.json(doc);
   })
-  } finally {
-   
-    await client.close();
-  }
+  
+  app.post("/user", async(req, res) => {
+    let data = req.body
+
+    await client.connect()
+
+    let database = client.db('myportfolio'); 
+
+    await database.collection("user").createIndex({username: 1}, {unique: true})
+
+    let register_doc = {
+      username: data.username,
+      password: await bcrypt.hash(data.password, 8)
+    }
+
+    try {
+    let register = await database.collection("user").insertOne(register_doc)
+
+    res.json(register)
+  }  catch(e) {    
+    if(e.code == 11000) {
+    throw new Error("Korisnik već postoji!")
+  }}
+})
 }
 run().catch(console.dir);
+
+
