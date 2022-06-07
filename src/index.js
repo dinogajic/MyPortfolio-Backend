@@ -7,7 +7,7 @@ app.use(cors())
 app.use(express.json())
 const port = 3000;
 const { MongoClient } = require("mongodb");
-app.listen(port)
+app.listen(process.env.PORT || port)
 
 const uri =
 "mongodb+srv://myportfolio-wa:webappsprojekt@myportfolio.ieynb.mongodb.net/?retryWrites=true&w=majority";
