@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
-
-const bcrypt = require('bcrypt');
+/* import bcrypt from "bcrypt"; */
 
 const app = express();
 app.use(cors())
@@ -53,7 +52,7 @@ async function run() {
  */
 
 
-app.post("/register", async (req, res) => {
+/* app.post("/register", async (req, res) => {
   const { email, password, firstName, lastName } = req.body;
   await client.connect()
   let database = client.db('myportfolio'); 
@@ -82,7 +81,7 @@ app.post("/register", async (req, res) => {
     }
     return res.json({ status: "error" });
   }
-});
+}); */
 }
 run().catch(console.dir);
 
