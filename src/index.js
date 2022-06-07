@@ -21,7 +21,7 @@ async function run() {
   app.get("/user", async(req, res) => {
       await client.connect()
       let database = client.db('myportfolio'); 
-      let doc = await database.collection("user").find().toArray()
+      let doc = await database.collection("user").findOne()
 
       res.json(doc);
   })
@@ -52,30 +52,50 @@ async function run() {
 ----
  */
 
+app.post("/auth", async (req, res) => {
+  let data = req.body
+/*   console.log(data.email) */
+  await client.connect()
+  let database = client.db('myportfolio')
+
+  let user = await database.collection("user").findOne({email: data.email})
+
+  if(user && user.password && (await bcryptjs.compare(data.password, user.password))) {
+    
+  }
+  else {
+    return res.json({ status: "error", msg: "Cannot auth" });
+  }
+
+  res.json(data)
+})
+
+
 
 app.post("/register", async (req, res) => {
-  const { email, password, firstName, lastName } = req.body;
+  let data = req.body;
+/*const { email, password, firstName, lastName } = req.body; */
   await client.connect()
   let database = client.db('myportfolio'); 
-  console.log(lastName);
-  console.log(lastName);
-  const pword = await bcryptjs.hash(password, 10);
-  console.log(pword);
+/*console.log(data.lastName);
+  console.log(data.lastName);
+  const pword = await bcryptjs.hash(data.password, 10);
+  console.log(pword); */
   
   try {
     await database.collection("user").createIndex({email: 1}, {unique: true})
 
     const response = await database.collection("user").insertOne({
-      email: email,
-      password: pword,
-      firstName: firstName,
-      lastName: lastName,
+      email: data.email,
+      password: await bcryptjs.hash(data.password, 8),
+      firstName: data.firstName,
+      lastName: data.lastName,
     });
 
-    console.log(response);
+    /* console.log(response); */
 
-    console.log("User created successfully: " + response);
-    res.json("User created successfully: " + response);
+    console.log("User created successfully");
+    res.json("User created successfully");
   } catch (error) {
     if (error.code == 11000) { // it could be .status, .code etc.. not sure
       return res.json({ status: "error", msg: "User already exist." });
