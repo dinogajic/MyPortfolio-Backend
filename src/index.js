@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import bcrypt from "bcrypt";
+import bcryptjs from "bcryptjs";
 import { MongoClient } from "mongodb"
 
 const app = express();
@@ -59,7 +59,7 @@ app.post("/register", async (req, res) => {
   let database = client.db('myportfolio'); 
   console.log(lastName);
   console.log(lastName);
-  const pword = await bcrypt.hash(password, 10);
+  const pword = await bcryptjs.hash(password, 10);
   console.log(pword);
   
   try {
