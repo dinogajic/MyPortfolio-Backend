@@ -1,12 +1,13 @@
 import express from "express";
 import cors from "cors";
 /* import bcrypt from "bcrypt"; */
+import { MongoClient } from "mongodb"
 
 const app = express();
 app.use(cors())
 app.use(express.json())
 const port = 3000;
-const { MongoClient } = require("mongodb");
+/* const { MongoClient } = require("mongodb"); */
 app.listen(process.env.PORT || port)
 
 const uri =
