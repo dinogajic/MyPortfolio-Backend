@@ -1,7 +1,11 @@
+import dotenv from "dotenv"
+dotenv.config()
+
 import express from "express";
 import cors from "cors";
 import bcryptjs from "bcryptjs";
 import { MongoClient } from "mongodb"
+import jwt from "jsonwebtoken"
 
 const app = express();
 app.use(cors())
@@ -19,56 +23,13 @@ const client = new MongoClient(uri, {
 
 async function run() {
   app.get("/user", async(req, res) => {
-      await client.connect()
-      let database = client.db('myportfolio'); 
-      let doc = await database.collection("user").findOne()
+    await client.connect()
+    let database = client.db('myportfolio');
+    
+    let doc = await database.collection("user").findOne()
 
       res.json(doc);
   })
-
-  
-/*   app.post("/user", async(req, res) => {
-    let data = req.body
-    await client.connect()
-    let database = client.db('myportfolio'); 
-
-  try {
-    await database.collection("user").createIndex({username: 1}, {unique: true})
-
-    let register_doc = {
-      username: data.username,
-      password: await bcrypt.hash(data.password, 8)
-    }
-
-    let register = await database.collection("user").insertOne(register_doc)
-
-    res.json(register)
-  }  catch(e) {    
-    if(e.code == 11000) {
-    return res.json("Korisnik već postoji!")
-  }}
-})
-
-----
- */
-
-app.post("/auth", async (req, res) => {
-  let data = req.body
-/*   console.log(data.email) */
-  await client.connect()
-  let database = client.db('myportfolio')
-
-  let user = await database.collection("user").findOne({email: data.email})
-
-  if(user && user.password && (await bcryptjs.compare(data.password, user.password))) {
-    
-  }
-  else {
-    return res.json({ status: "error", msg: "Cannot auth" });
-  }
-
-  res.json(data)
-})
 
 
 
@@ -103,6 +64,61 @@ app.post("/register", async (req, res) => {
     return res.json({ status: "error" });
   }
 });
+
+
+
+
+app.post("/auth", async (req, res) => {
+  let data = req.body
+/*   console.log(data.email) */
+  await client.connect()
+  let database = client.db('myportfolio')
+
+  let user = await database.collection("user").findOne({email: data.email})
+
+  if(user && user.password && (await bcryptjs.compare(data.password, user.password))) {
+    delete user.password
+    let token = jwt.sign(user, process.env.JWT_KEY, {
+      algorithm: "HS512",
+      expiresIn: "1 day"
+    })
+    return res.json({
+      token,
+      email: user.email
+    })
+  }
+  else {
+    return res.json({ status: "error", msg: "Cannot auth" });
+  }
+})
+
+
+
+app.get("/authsec", (req, res) => {
+/*   console.log(req.headers) */
+try {
+  let authorization = req.headers.authorization.split(' ')
+  let type = authorization[0]
+  let token =  authorization[1]
+
+  console.log(type, token)  
+
+  if(type !== "Bearer") {
+    res.status(401).send()
+    return false
+  }
+  else {
+    req.jwt = jwt.verify(token, process.env.JWT_KEY)
+    res.json({ message: "Korisnik: " + req.jwt.email})
+    return true
+  }
+  }
+  catch(error) {
+    res.status(403).send()
+    return false
+  }
+})
+
 }
 run().catch(console.dir);
 
