@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-/* import bcrypt from "bcrypt"; */
+import bcrypt from "bcrypt";
 import { MongoClient } from "mongodb"
 
 const app = express();
@@ -53,7 +53,7 @@ async function run() {
  */
 
 
-/* app.post("/register", async (req, res) => {
+app.post("/register", async (req, res) => {
   const { email, password, firstName, lastName } = req.body;
   await client.connect()
   let database = client.db('myportfolio'); 
@@ -82,7 +82,7 @@ async function run() {
     }
     return res.json({ status: "error" });
   }
-}); */
+});
 }
 run().catch(console.dir);
 
