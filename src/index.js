@@ -94,30 +94,37 @@ app.post("/auth", async (req, res) => {
 
 
 
-app.get("/authsec", (req, res) => {
-/*   console.log(req.headers) */
-try {
-  let authorization = req.headers.authorization.split(' ')
-  let type = authorization[0]
-  let token =  authorization[1]
+app.get("/authsec", [verify], (req, res) => {
 
-  console.log(type, token)  
+  res.json({ message: "Korisnik: " + req.jwt.email})
 
-  if(type !== "Bearer") {
-    res.status(401).send()
-    return false
-  }
-  else {
-    req.jwt = jwt.verify(token, process.env.JWT_KEY)
-    res.json({ message: "Korisnik: " + req.jwt.email})
-    return true
-  }
-  }
-  catch(error) {
-    res.status(403).send()
-    return false
-  }
 })
+
+
+function verify (req, res, next) {
+  try {
+    /*   console.log(req.headers) */
+
+    let authorization = req.headers.authorization.split(' ')
+    let type = authorization[0]
+    let token =  authorization[1]
+  
+    console.log(type, token)  
+  
+    if(type !== "Bearer") {
+      res.status(401).send()
+      return false
+    }
+    else {
+      req.jwt = jwt.verify(token, process.env.JWT_KEY)
+      next()
+    }
+    }
+    catch(error) {
+      res.status(403).send("pšroba")
+      return false
+    }
+}
 
 }
 run().catch(console.dir);
