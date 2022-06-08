@@ -88,7 +88,7 @@ app.post("/auth", async (req, res) => {
     })
   }
   else {
-    return res.json({ status: "error", msg: "Cannot authentication" });
+    return res.json({ status: "error", msg: "Cannot auth" });
   }
 })
 
