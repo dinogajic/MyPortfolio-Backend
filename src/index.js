@@ -82,20 +82,21 @@ app.post("/auth", async (req, res) => {
       algorithm: "HS512",
       expiresIn: "1 day"
     })
-    return res.json({
+     res.json({
       token,
       email: user.email
     })
+    return true
   }
   else {
-    return res.json({ status: "error", msg: "Cannot auth" });
+    res.json({ status: "error", msg: "Cannot auth" });
+    return false
   }
 })
 
 
 
 app.get("/authsec", (req, res) => {
-
   try {
     /*   console.log(req.headers) */
 
