@@ -22,7 +22,8 @@ const client = new MongoClient(uri, {
 });
 
 async function run() {
-  app.get("/user", async(req, res) => {
+
+  app.get("/user", [verify], async(req, res) => {
     await client.connect()
     let database = client.db('myportfolio');
     
@@ -96,7 +97,14 @@ app.post("/auth", async (req, res) => {
 
 
 
-app.get("/authsec", (req, res) => {
+app.get("/authsec", [verify], (req, res) => {
+
+  res.json({ message: "Korisnik: " + req.jwt.email})
+
+  })
+
+
+function verify(req, res, next) {
   try {
     /*   console.log(req.headers) */
 
@@ -112,15 +120,14 @@ app.get("/authsec", (req, res) => {
     }
     else {
       req.jwt = jwt.verify(token, process.env.JWT_KEY)
-      res.json({ message: "Korisnik: " + req.jwt.email})
+      next()
     }
     }
     catch(error) {
       res.status(403).send()
       return false
     }
-
-  })
+}
 
 }
 run().catch(console.dir);
