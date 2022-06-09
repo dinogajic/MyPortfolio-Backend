@@ -94,14 +94,8 @@ app.post("/auth", async (req, res) => {
 
 
 
-app.get("/authsec", [verify], (req, res) => {
+app.get("/authsec", (req, res) => {
 
-  res.json({ message: "Korisnik: " + req.jwt.email})
-
-})
-
-
-function verify (req, res, next) {
   try {
     /*   console.log(req.headers) */
 
@@ -117,14 +111,15 @@ function verify (req, res, next) {
     }
     else {
       req.jwt = jwt.verify(token, process.env.JWT_KEY)
-      next()
+      res.json({ message: "Korisnik: " + req.jwt.email})
     }
     }
     catch(error) {
-      res.status(403).send("pšroba")
+      res.status(403).send()
       return false
     }
-}
+
+  })
 
 }
 run().catch(console.dir);
