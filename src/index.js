@@ -11,7 +11,6 @@ const app = express();
 app.use(cors())
 app.use(express.json())
 const port = 3000;
-/* const { MongoClient } = require("mongodb"); */
 app.listen(process.env.PORT || port)
 
 const uri =
@@ -27,7 +26,7 @@ async function run() {
     await client.connect()
     let database = client.db('myportfolio');
     
-    let doc = await database.collection("user").findOne()
+    let doc = await database.collection("user").findOne({email: req.jwt.email})
 
       res.json(doc);
   })
@@ -36,13 +35,8 @@ async function run() {
 
 app.post("/register", async (req, res) => {
   let data = req.body;
-/*const { email, password, firstName, lastName } = req.body; */
   await client.connect()
   let database = client.db('myportfolio'); 
-/*console.log(data.lastName);
-  console.log(data.lastName);
-  const pword = await bcryptjs.hash(data.password, 10);
-  console.log(pword); */
   
   try {
     await database.collection("user").createIndex({email: 1}, {unique: true})
@@ -54,12 +48,10 @@ app.post("/register", async (req, res) => {
       lastName: data.lastName,
     });
 
-    /* console.log(response); */
-
     console.log("User created successfully");
     res.json("User created successfully");
   } catch (error) {
-    if (error.code == 11000) { // it could be .status, .code etc.. not sure
+    if (error.code == 11000) {
       return res.json({ status: "error", msg: "User already exist." });
     }
     return res.json({ status: "error" });
@@ -71,7 +63,6 @@ app.post("/register", async (req, res) => {
 
 app.post("/auth", async (req, res) => {
   let data = req.body
-/*   console.log(data.email) */
   await client.connect()
   let database = client.db('myportfolio')
 
@@ -106,8 +97,6 @@ app.get("/authsec", [verify], (req, res) => {
 
 function verify(req, res, next) {
   try {
-    /*   console.log(req.headers) */
-
     let authorization = req.headers.authorization.split(' ')
     let type = authorization[0]
     let token =  authorization[1]
