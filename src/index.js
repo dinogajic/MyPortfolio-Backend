@@ -5,6 +5,7 @@ import express from "express";
 import cors from "cors";
 import bcryptjs from "bcryptjs";
 import { MongoClient } from "mongodb"
+import { ObjectId } from "mongodb"
 import jwt from "jsonwebtoken"
 
 const app = express();
@@ -22,7 +23,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
 
-  app.get("/user", [verify], async(req, res) => {
+app.get("/user", [verify], async(req, res) => {
     await client.connect()
     let database = client.db('myportfolio');
     
@@ -30,6 +31,19 @@ async function run() {
 
       res.json(doc);
   })
+
+
+  app.put("/user/:id", async (req, res) => {
+    let data = req.body;
+    let id = req.params.id
+    await client.connect()
+    let database = client.db('myportfolio'); 
+
+    delete data._id
+
+    const response = await database.collection("user").replaceOne({_id: ObjectId(id)}, data);
+
+  });
 
 
 
