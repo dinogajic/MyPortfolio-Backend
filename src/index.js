@@ -1,7 +1,7 @@
 import dotenv from "dotenv"
 dotenv.config()
 
-import express from "express";
+import express, { response } from "express";
 import cors from "cors";
 import bcryptjs from "bcryptjs";
 import { MongoClient } from "mongodb"
@@ -45,6 +45,31 @@ app.get("/user", [verify], async(req, res) => {
 
   });
 
+  
+  app.patch("/user/:id", async (req, res) => {
+    let data = req.body;
+    let id = req.params.id
+    await client.connect()
+    let database = client.db('myportfolio'); 
+
+
+    try{
+
+    const response = await database.collection("user").updateOne({_id: ObjectId(id)}, 
+                      {
+                        $set: data
+                      });
+                      
+                      console.log(response.modifiedCount)
+
+                    } catch (error) {
+                      if (response && response.modifiedCount == 1) {
+                         res.json({ status: "success" });
+                      }
+                          res.json({ status: "fail" });
+                    }
+
+  });
 
 
 app.post("/register", async (req, res) => {
