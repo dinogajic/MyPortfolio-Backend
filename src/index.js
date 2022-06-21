@@ -60,6 +60,13 @@ app.post("/register", async (req, res) => {
       password: await bcryptjs.hash(data.password, 8),
       firstName: data.firstName,
       lastName: data.lastName,
+      userData: {
+        country: data.country,
+        mobile_number: data.mobile_number,
+        address: data.address,
+        postcode: data.postcode,
+        education: data.education,
+      }
     });
 
     console.log("User created successfully");
