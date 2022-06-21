@@ -33,7 +33,7 @@ app.get("/user", [verify], async(req, res) => {
   })
 
 
-  app.put("/user/:id", async (req, res) => {
+/*   app.put("/user/:id", async (req, res) => {
     let data = req.body;
     let id = req.params.id
     await client.connect()
@@ -43,7 +43,9 @@ app.get("/user", [verify], async(req, res) => {
 
     const response = await database.collection("user").replaceOne({_id: ObjectId(id)}, data);
 
-  });
+    res.json(response)
+
+  }); */
 
   
   app.patch("/user/:id", async (req, res) => {
@@ -51,25 +53,10 @@ app.get("/user", [verify], async(req, res) => {
     let id = req.params.id
     await client.connect()
     let database = client.db('myportfolio'); 
-
-
-    try{
-
-    const response = await database.collection("user").updateOne({_id: ObjectId(id)}, 
-                      {
-                        $set: data
-                      });
-                      
-                      console.log(response.modifiedCount)
-
-                    } catch (error) {
-                      if (response && response.modifiedCount == 1) {
-                         res.json({ status: "success" });
-                      }
-                          res.json({ status: "fail" });
-                    }
-
-  });
+    const response = await database.collection("user").updateOne({_id: ObjectId(id)}, { $set: data });
+    console.log(response.modifiedCount)
+    res.json(response)
+    });
 
 
 app.post("/register", async (req, res) => {
