@@ -93,6 +93,33 @@ app.post("/register", async (req, res) => {
 
 
 
+app.post("/portfolio", async (req, res) => {
+  let data = req.body;
+  await client.connect()
+  let database = client.db('myportfolio'); 
+  
+  try {
+   /*  await database.collection("portfolio").createIndex({email: 1}, {unique: true}) */
+
+    const response = await database.collection("portfolio").insertOne({
+      projectTitle: data.projectTitle,
+      projectSubitle: data.projectSubitle,
+      projectDescription: data.projectDescription,
+      projectLinks: data.projectLinks,
+    });
+
+    console.log("Portfolio created successfully");
+    res.json("Portfolio created successfully");
+  } catch (error) {/* 
+    if (error.code == 11000) {
+      return res.json({ status: "error", msg: "User already exist." });
+    }
+    return res.json({ status: "error" }); */
+  }
+});
+
+
+
 
 app.post("/auth", async (req, res) => {
   let data = req.body
@@ -126,6 +153,9 @@ app.get("/authsec", [verify], (req, res) => {
   res.json({ message: "Korisnik: " + req.jwt.email})
 
   })
+
+
+ 
 
 
 function verify(req, res, next) {
