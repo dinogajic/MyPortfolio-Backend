@@ -32,6 +32,15 @@ app.get("/user", [verify], async(req, res) => {
       res.json(doc);
   })
 
+  app.get("/portfolio", [verify], async(req, res) => {
+    await client.connect()
+    let database = client.db('myportfolio');
+    
+    let doc = await database.collection("portfolio").find({userEmail: req.jwt.email}).toArray()
+
+      res.json(doc);
+  })
+
 
 /*   app.put("/user/:id", async (req, res) => {
     let data = req.body;
@@ -93,7 +102,7 @@ app.post("/register", async (req, res) => {
 
 
 
-app.post("/portfolio", async (req, res) => {
+app.post("/portfolio", [verify], async (req, res) => {
   let data = req.body;
   await client.connect()
   let database = client.db('myportfolio'); 
@@ -106,7 +115,10 @@ app.post("/portfolio", async (req, res) => {
       projectSubitle: data.projectSubitle,
       projectDescription: data.projectDescription,
       projectLinks: data.projectLinks,
+      userEmail: req.jwt.email
     });
+
+    console.log(response)
 
     console.log("Portfolio created successfully");
     res.json("Portfolio created successfully");
@@ -136,7 +148,8 @@ app.post("/auth", async (req, res) => {
     })
      res.json({
       token,
-      email: user.email
+      email: user.email,
+      id: user._id
     })
     return true
   }
@@ -150,7 +163,7 @@ app.post("/auth", async (req, res) => {
 
 app.get("/authsec", [verify], (req, res) => {
 
-  res.json({ message: "Korisnik: " + req.jwt.email})
+  res.json({ message: "Korisnik: " + req.jwt._id})
 
   })
 
