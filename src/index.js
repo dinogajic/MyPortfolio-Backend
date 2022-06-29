@@ -112,7 +112,7 @@ app.post("/portfolio", [verify], async (req, res) => {
 
     const response = await database.collection("portfolio").insertOne({
       projectTitle: data.projectTitle,
-      projectSubitle: data.projectSubitle,
+      projectSubtitle: data.projectSubtitle,
       projectDescription: data.projectDescription,
       projectLinks: data.projectLinks,
       userEmail: req.jwt.email
