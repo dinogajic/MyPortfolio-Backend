@@ -1,27 +1,18 @@
 import dotenv from "dotenv"
 dotenv.config()
 
-import express, { response } from "express";
+import express from "express";
 import cors from "cors";
 import bcryptjs from "bcryptjs";
+import mongo from "mongodb"
 import { MongoClient } from "mongodb"
 import { ObjectId } from "mongodb"
 import jwt from "jsonwebtoken"
 import multer from "multer"
-import multerGridFs from "multer-gridfs-storage"
+import { GridFsStorage } from "multer-gridfs-storage";
+/* import  Grid  from "gridfs-stream"; */
 
-//MULTER
 
-const fileStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "./images")
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + file.originalname)
-  }
-})
-
-const upload = multer({storage: fileStorage})
 
 //EXPRESS AND CORS
 
@@ -37,6 +28,34 @@ const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
+
+
+//MULTER
+
+/* const storage = new GridFsStorage({ url: uri });
+
+const fileStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, )
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + file.originalname)
+  }
+})
+
+const upload = multer({storage: fileStorage}) */
+
+const storage = new GridFsStorage({
+  url: "mongodb+srv://myportfolio-wa:webappsprojekt@myportfolio.ieynb.mongodb.net/pic?retryWrites=true&w=majority",
+  file: (req, file) => {
+    return {
+      filename: 'file_' + Date.now()
+    };
+  }
+});
+const upload = multer({ storage });
+
+
 
 async function run() {
 
@@ -199,34 +218,15 @@ app.post("/portfolio", [verify], async (req, res) => {
 
 app.get("/pic", async(req, res) => {
   await client.connect()
-  let database = client.db('myportfolio');
+  let database = client.db('pic');
   
-  let doc = await database.collection("pic").find().toArray()  
-
+  let doc = await database.collection("fs.chunks").find().toArray()
   res.json(doc);
 })
 
 app.post("/pic", upload.single("image"), async (req, res) => {
-/*   console.log(req.file)
-  res.send("Single file upload") */
-
-
-let data = req.file;
-console.log(data)
-await client.connect()
-let database = client.db('myportfolio'); 
-
-try {
-  const response = await database.collection("pic").insertOne({
-    pic: data
-  });
-
-  console.log(response)
-
   console.log("PIC created successfully");
   res.json("PIC created successfully");
-} catch (error) {
-}
 });
 
  
