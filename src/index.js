@@ -7,6 +7,23 @@ import bcryptjs from "bcryptjs";
 import { MongoClient } from "mongodb"
 import { ObjectId } from "mongodb"
 import jwt from "jsonwebtoken"
+import multer from "multer"
+import multerGridFs from "multer-gridfs-storage"
+
+//MULTER
+
+const fileStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "./images")
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + file.originalname)
+  }
+})
+
+const upload = multer({storage: fileStorage})
+
+//EXPRESS AND CORS
 
 const app = express();
 app.use(cors())
@@ -23,6 +40,84 @@ const client = new MongoClient(uri, {
 
 async function run() {
 
+
+//REGISTRATION
+
+
+app.post("/register", async (req, res) => {
+    let data = req.body;
+    await client.connect()
+    let database = client.db('myportfolio'); 
+    
+    try {
+      await database.collection("user").createIndex({email: 1}, {unique: true})
+  
+      const response = await database.collection("user").insertOne({
+        email: data.email,
+        password: await bcryptjs.hash(data.password, 8),
+        firstName: data.firstName,
+        lastName: data.lastName,
+        userData: {
+          country: data.country,
+          mobile_number: data.mobile_number,
+          address: data.address,
+          postcode: data.postcode,
+          education: data.education,
+        }
+      });
+  
+      console.log("User created successfully");
+      res.json("User created successfully");
+    } catch (error) {
+      if (error.code == 11000) {
+        return res.json({ status: "error", msg: "User already exist." });
+      }
+      return res.json({ status: "error" });
+    }
+  });
+
+
+//AUTHENTICATION
+
+
+app.post("/auth", async (req, res) => {
+    let data = req.body
+    await client.connect()
+    let database = client.db('myportfolio')
+  
+    let user = await database.collection("user").findOne({email: data.email})
+  
+    if(user && user.password && (await bcryptjs.compare(data.password, user.password))) {
+      delete user.password
+      let token = jwt.sign(user, process.env.JWT_KEY, {
+        algorithm: "HS512",
+        expiresIn: "1 day"
+      })
+       res.json({
+        token,
+        email: user.email,
+        id: user._id
+      })
+      return true
+    }
+    else {
+      res.status(401).send({ status: "Auth error", msg: "Cannot authenticate" })
+      return false
+    }
+  })
+  
+  
+  
+app.get("/authsec", [verify], (req, res) => {
+  
+    res.json({ message: "Korisnik: " + req.jwt._id})
+  
+    })
+
+
+//USER
+
+
 app.get("/user", [verify], async(req, res) => {
     await client.connect()
     let database = client.db('myportfolio');
@@ -31,16 +126,6 @@ app.get("/user", [verify], async(req, res) => {
 
       res.json(doc);
   })
-
-  app.get("/portfolio", [verify], async(req, res) => {
-    await client.connect()
-    let database = client.db('myportfolio');
-    
-    let doc = await database.collection("portfolio").find({userEmail: req.jwt.email}).toArray()
-
-      res.json(doc);
-  })
-
 
 /*   app.put("/user/:id", async (req, res) => {
     let data = req.body;
@@ -57,7 +142,7 @@ app.get("/user", [verify], async(req, res) => {
   }); */
 
   
-  app.patch("/user/:id", async (req, res) => {
+app.patch("/user/:id", async (req, res) => {
     let data = req.body;
     let id = req.params.id
     await client.connect()
@@ -68,39 +153,17 @@ app.get("/user", [verify], async(req, res) => {
     });
 
 
-app.post("/register", async (req, res) => {
-  let data = req.body;
-  await client.connect()
-  let database = client.db('myportfolio'); 
-  
-  try {
-    await database.collection("user").createIndex({email: 1}, {unique: true})
-
-    const response = await database.collection("user").insertOne({
-      email: data.email,
-      password: await bcryptjs.hash(data.password, 8),
-      firstName: data.firstName,
-      lastName: data.lastName,
-      userData: {
-        country: data.country,
-        mobile_number: data.mobile_number,
-        address: data.address,
-        postcode: data.postcode,
-        education: data.education,
-      }
-    });
-
-    console.log("User created successfully");
-    res.json("User created successfully");
-  } catch (error) {
-    if (error.code == 11000) {
-      return res.json({ status: "error", msg: "User already exist." });
-    }
-    return res.json({ status: "error" });
-  }
-});
+//PORTFOLIO
 
 
+app.get("/portfolio", [verify], async(req, res) => {
+    await client.connect()
+    let database = client.db('myportfolio');
+    
+    let doc = await database.collection("portfolio").find({userEmail: req.jwt.email}).toArray()
+
+      res.json(doc);
+  })
 
 app.post("/portfolio", [verify], async (req, res) => {
   let data = req.body;
@@ -131,44 +194,43 @@ app.post("/portfolio", [verify], async (req, res) => {
 });
 
 
+//TEST
 
 
-app.post("/auth", async (req, res) => {
-  let data = req.body
+app.get("/pic", async(req, res) => {
   await client.connect()
-  let database = client.db('myportfolio')
+  let database = client.db('myportfolio');
+  
+  let doc = await database.collection("pic").find().toArray()  
 
-  let user = await database.collection("user").findOne({email: data.email})
-
-  if(user && user.password && (await bcryptjs.compare(data.password, user.password))) {
-    delete user.password
-    let token = jwt.sign(user, process.env.JWT_KEY, {
-      algorithm: "HS512",
-      expiresIn: "1 day"
-    })
-     res.json({
-      token,
-      email: user.email,
-      id: user._id
-    })
-    return true
-  }
-  else {
-    res.status(401).send({ status: "Auth error", msg: "Cannot authenticate" })
-    return false
-  }
+  res.json(doc);
 })
 
+app.post("/pic", upload.single("image"), async (req, res) => {
+/*   console.log(req.file)
+  res.send("Single file upload") */
 
 
-app.get("/authsec", [verify], (req, res) => {
+let data = req.file;
+console.log(data)
+await client.connect()
+let database = client.db('myportfolio'); 
 
-  res.json({ message: "Korisnik: " + req.jwt._id})
+try {
+  const response = await database.collection("pic").insertOne({
+    pic: data
+  });
 
-  })
+  console.log(response)
 
+  console.log("PIC created successfully");
+  res.json("PIC created successfully");
+} catch (error) {
+}
+});
 
  
+//FUNCTIONS
 
 
 function verify(req, res, next) {
