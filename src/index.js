@@ -25,7 +25,73 @@ const client = new MongoClient(uri, {
 });
 
 
+//
+import mongoose from "mongoose"
+import multer from "multer"
+import fs from "fs"
+import ImageModel from "./models.js"
+
+mongoose
+  .connect(
+    "mongodb+srv://myportfolio-wa:webappsprojekt@myportfolio.ieynb.mongodb.net/MyPortfolioImages?retryWrites=true&w=majority", {
+    useNewUrlParser: true, 
+    useUnifiedTopology: true 
+  })
+
+
+/* function imgSchema() { 
+    new mongoose.Schema({
+      name: String,
+      img: {
+        data: Buffer,
+        contentType: String,
+      },
+    })
+  }; */
+
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, "uploads");
+    },
+    filename: (req, file, cb) => {
+      cb(null, file.originalname);
+    },
+  });
+  
+  const upload = multer({ storage: storage });
+
+
+
+
+
 async function run() {
+
+//IMAGES POST/GET
+
+app.post("/image", upload.single("image"), (req, res) => {
+  const saveImage =  ImageModel({
+    name: req.body.name,
+    img: {
+      data: fs.readFileSync("uploads/" + req.file.filename),
+      contentType: "image/png",
+    },
+  });
+  saveImage
+    .save()
+    .then((res) => {
+      console.log("image is saved");
+    })
+    .catch((err) => {
+      console.log(err, "error has occur");
+    });
+    res.send('image is saved')
+});
+
+app.get('/image',async (req,res)=>{
+  const allData = await ImageModel.find()
+  res.json(allData)
+})
 
 
 //REGISTRATION
