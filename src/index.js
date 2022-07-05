@@ -8,15 +8,6 @@ import { MongoClient } from "mongodb"
 import { ObjectId } from "mongodb"
 import jwt from "jsonwebtoken"
 
-//
-import mongoose from "mongoose"
-import multer from "multer"
-import GridFsStorage from "multer-gridfs-storage"
-import Grid from "gridfs-stream"
-import crypto from "crypto"
-import path from "path"
-
-
 
 //EXPRESS AND CORS
 
@@ -32,43 +23,6 @@ const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
-
-
-//MULTER
-
-const mongoURI = "mongodb+srv://myportfolio-wa:webappsprojekt@myportfolio.ieynb.mongodb.net/profile_image?retryWrites=true&w=majority";
-
-const conn = mongoose.createConnection(mongoURI);
-
-let gfs;
-
-conn.once('open', () => {
-  // Init stream
-  gfs = Grid(conn.db, mongoose.mongo);
-  gfs.collection('uploads');
-});
-
-const storage = new GridFsStorage({
-  url: mongoURI,
-  file: (req, file) => {
-    return new Promise((resolve, reject) => {
-      crypto.randomBytes(16, (err, buf) => {
-        if (err) {
-          return reject(err);
-        }
-        const filename = buf.toString('hex') + path.extname(file.originalname);
-        const fileInfo = {
-          filename: filename,
-          bucketName: 'uploads'
-        };
-        resolve(fileInfo);
-      });
-    });
-  }
-});
-
-const upload = multer({ storage });
-
 
 
 async function run() {
@@ -226,36 +180,6 @@ app.post("/portfolio", [verify], async (req, res) => {
   }
 });
 
-
-//TEST
-
-
-app.get('/image/:filename', (req, res) => {
-  gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
-
-    if (!file || file.length === 0) {
-      return res.status(404).json({
-        err: 'No file exists'
-      });
-    }
-
-
-    if (file.contentType === 'image/jpeg' || file.contentType === 'image/png') {
-
-      const readstream = gfs.createReadStream(file.filename);
-      readstream.pipe(res);
-    } else {
-      res.status(404).json({
-        err: 'Not an image'
-      });
-    }
-  });
-});
-
-app.post("/image", upload.single("image"), async (req, res) => {
-  console.log("PIC created successfully");
-  res.json("PIC created successfully");
-});
 
  
 //FUNCTIONS
