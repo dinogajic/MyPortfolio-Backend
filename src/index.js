@@ -4,9 +4,11 @@ dotenv.config()
 import express from "express"
 import cors from "cors"
 import bcryptjs from "bcryptjs"
+import mongoose from "mongoose"
 import { MongoClient } from "mongodb"
 import { ObjectId } from "mongodb"
 import jwt from "jsonwebtoken"
+
 
 
 //EXPRESS AND CORS
