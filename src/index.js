@@ -4,15 +4,12 @@ dotenv.config()
 import express from "express"
 import cors from "cors"
 import bcryptjs from "bcryptjs"
+import mongoose from "mongoose"
 import { MongoClient } from "mongodb"
 import { ObjectId } from "mongodb"
 import jwt from "jsonwebtoken"
-
-//
-import mongo from "mongodb"
-import mongoose from "mongoose"
 import multer from "multer"
-import GridFsStorage from "multer-gridfs-storage"
+import { GridFsStorage } from "multer-gridfs-storage"
 import Grid from "gridfs-stream"
 import crypto from "crypto"
 import path from "path"
