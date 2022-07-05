@@ -36,7 +36,7 @@ const client = new MongoClient(uri, {
 
 //MULTER
 
-const mongoURI = "mongodb+srv://myportfolio-wa:webappsprojekt@myportfolio.ieynb.mongodb.net/pic?retryWrites=true&w=majority";
+const mongoURI = "mongodb+srv://myportfolio-wa:webappsprojekt@myportfolio.ieynb.mongodb.net/profile_image?retryWrites=true&w=majority";
 
 const conn = mongoose.createConnection(mongoURI);
 
@@ -252,7 +252,7 @@ app.get('/image/:filename', (req, res) => {
   });
 });
 
-app.post("/pic", upload.single("image"), async (req, res) => {
+app.post("/image", upload.single("image"), async (req, res) => {
   console.log("PIC created successfully");
   res.json("PIC created successfully");
 });
