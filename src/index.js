@@ -180,7 +180,6 @@ app.post("/portfolio", [verify], async (req, res) => {
   }
 });
 
-
  
 //FUNCTIONS
 
