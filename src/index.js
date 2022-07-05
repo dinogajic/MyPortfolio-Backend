@@ -34,20 +34,7 @@ const client = new MongoClient(uri, {
 
 //MULTER
 
-/* const storage = new GridFsStorage({ url: uri });
-
-const fileStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, )
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + file.originalname)
-  }
-})
-
-const upload = multer({storage: fileStorage}) */
-
-const mongoURI = "mongodb+srv://myportfolio-wa:webappsprojekt@myportfolio.ieynb.mongodb.net/pic?retryWrites=true&w=majority";
+const mongoURI = "mongodb+srv://myportfolio-wa:webappsprojekt@myportfolio.ieynb.mongodb.net/profile_image?retryWrites=true&w=majority";
 
 const conn = mongoose.createConnection(mongoURI);
 
@@ -243,16 +230,16 @@ app.post("/portfolio", [verify], async (req, res) => {
 
 app.get('/image/:filename', (req, res) => {
   gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
-    // Check if file
+
     if (!file || file.length === 0) {
       return res.status(404).json({
         err: 'No file exists'
       });
     }
 
-    // Check if image
+
     if (file.contentType === 'image/jpeg' || file.contentType === 'image/png') {
-      // Read output to browser
+
       const readstream = gfs.createReadStream(file.filename);
       readstream.pipe(res);
     } else {
@@ -263,7 +250,7 @@ app.get('/image/:filename', (req, res) => {
   });
 });
 
-app.post("/pic", upload.single("image"), async (req, res) => {
+app.post("/image", upload.single("image"), async (req, res) => {
   console.log("PIC created successfully");
   res.json("PIC created successfully");
 });
