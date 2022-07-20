@@ -231,7 +231,8 @@ app.post("/portfolio", [verify], async (req, res) => {
       projectSubtitle: data.projectSubtitle,
       projectDescription: data.projectDescription,
       projectLinks: data.projectLinks,
-      userEmail: req.jwt.email
+      userEmail: req.jwt.email,
+      template: data.templateChoice
     });
 
     console.log(response)
