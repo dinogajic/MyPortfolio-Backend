@@ -57,11 +57,10 @@ async function run() {
 
 //IMAGES POST/GET
 
-app.post("/image", [verify], upload.single("image"), async (req, res) => {
-  await client.connect()
+app.post("/image", /* [verify], */ upload.single("image"),  async (req, res) => {
   const saveImage =  ImageModel({
     name: req.body.name,
-    userEmail: req.jwt.email,
+/*     userEmail: req.jwt.email, */
     img: {
       data: fs.readFileSync("uploads/" + req.file.filename),
       contentType: "image/png",
@@ -78,8 +77,8 @@ app.post("/image", [verify], upload.single("image"), async (req, res) => {
     res.send('image is saved')
 });
 
-app.get('/image', [verify], async (req,res)=>{
-  const allData = await ImageModel.find({userEmail: req.jwt.email})
+app.get('/image', /* [verify], */ async (req,res)=>{
+  const allData = await ImageModel.findOne(/* {userEmail: req.jwt.email} */)
   res.json(allData)
 })
 
