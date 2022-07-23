@@ -33,22 +33,10 @@ import ImageModel from "./models.js"
 
 mongoose
   .connect(
-    "mongodb+srv://myportfolio-wa:webappsprojekt@myportfolio.ieynb.mongodb.net/MyPortfolioImages?retryWrites=true&w=majority", {
+    "mongodb+srv://myportfolio-wa:webappsprojekt@myportfolio.ieynb.mongodb.net/myportfolio?retryWrites=true&w=majority", {
     useNewUrlParser: true, 
     useUnifiedTopology: true 
   })
-
-
-/* function imgSchema() { 
-    new mongoose.Schema({
-      name: String,
-      img: {
-        data: Buffer,
-        contentType: String,
-      },
-    })
-  }; */
-
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -69,9 +57,11 @@ async function run() {
 
 //IMAGES POST/GET
 
-app.post("/image", upload.single("image"), (req, res) => {
+app.post("/image", [verify], upload.single("image"), async (req, res) => {
+  await client.connect()
   const saveImage =  ImageModel({
     name: req.body.name,
+    userEmail: req.jwt.email,
     img: {
       data: fs.readFileSync("uploads/" + req.file.filename),
       contentType: "image/png",
@@ -88,8 +78,8 @@ app.post("/image", upload.single("image"), (req, res) => {
     res.send('image is saved')
 });
 
-app.get('/image',async (req,res)=>{
-  const allData = await ImageModel.find()
+app.get('/image', [verify], async (req,res)=>{
+  const allData = await ImageModel.find({userEmail: req.jwt.email})
   res.json(allData)
 })
 
@@ -179,21 +169,6 @@ app.get("/user", [verify], async(req, res) => {
 
       res.json(doc);
   })
-
-/*   app.put("/user/:id", async (req, res) => {
-    let data = req.body;
-    let id = req.params.id
-    await client.connect()
-    let database = client.db('myportfolio'); 
-
-    delete data._id
-
-    const response = await database.collection("user").replaceOne({_id: ObjectId(id)}, data);
-
-    res.json(response)
-
-  }); */
-
   
 app.patch("/user/:id", async (req, res) => {
     let data = req.body;
@@ -215,7 +190,7 @@ app.get("/portfolio", [verify], async(req, res) => {
     
     let doc = await database.collection("portfolio").find({userEmail: req.jwt.email}).toArray()
 
-      res.json(doc);
+    res.json(doc);
   })
 
 app.post("/portfolio", [verify], async (req, res) => {
@@ -224,8 +199,6 @@ app.post("/portfolio", [verify], async (req, res) => {
   let database = client.db('myportfolio'); 
   
   try {
-   /*  await database.collection("portfolio").createIndex({email: 1}, {unique: true}) */
-
     const response = await database.collection("portfolio").insertOne({
       projectTitle: data.projectTitle,
       projectSubtitle: data.projectSubtitle,
@@ -239,11 +212,7 @@ app.post("/portfolio", [verify], async (req, res) => {
 
     console.log("Portfolio created successfully");
     res.json("Portfolio created successfully");
-  } catch (error) {/* 
-    if (error.code == 11000) {
-      return res.json({ status: "error", msg: "User already exist." });
-    }
-    return res.json({ status: "error" }); */
+  } catch (error) {
   }
 });
 
