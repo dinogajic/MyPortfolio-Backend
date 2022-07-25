@@ -58,11 +58,11 @@ async function run() {
 
 //IMAGES POST/GET
 
-app.post("/image", [verify], upload.single("image"),  async (req, res) => {
+app.post("/image", /* [verify], */ upload.single("image"),  async (req, res) => {
   await client.connect()
   const saveImage =  ImageModel({
     name: req.body.name,
-    userEmail: req.jwt.email,
+/*     userEmail: req.jwt.email, */
     img: {
       data: fs.readFileSync("uploads/" + req.file.filename),
       contentType: "image/png",
