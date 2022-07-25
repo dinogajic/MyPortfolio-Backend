@@ -59,7 +59,6 @@ async function run() {
 //IMAGES POST/GET
 
 app.post("/image", [verify], upload.single("image"),  async (req, res) => {
-  await client.connect()
   const saveImage =  ImageModel({
     name: req.body.name,
     userEmail: req.jwt.email,
