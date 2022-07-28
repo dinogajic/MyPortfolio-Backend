@@ -62,10 +62,10 @@ app.post("/image", /* [verify], */ upload.single("image"),  async (req, res) => 
   const saveImage =  ImageModel({
     name: req.body.name,
     /* userEmail: req.jwt.email, */
-    img: {
+/*     img: {
       data: fs.readFileSync("uploads/" + req.file.filename),
       contentType: "image/png",
-    },
+    }, */
   });
   saveImage
     .save()
