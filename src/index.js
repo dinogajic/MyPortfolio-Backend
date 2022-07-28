@@ -59,6 +59,9 @@ async function run() {
 
 app.post("/image", [verify], upload.single("image"),  async (req, res) => {
   await client.connect()
+  let database = client.db('myportfolio'); 
+  database.collection("images").deleteOne({"userEmail": req.jwt.email});
+  
   const saveImage =  ImageModel({
     name: req.body.name,
     userEmail: req.jwt.email,
