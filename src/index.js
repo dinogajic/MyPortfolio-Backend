@@ -29,7 +29,8 @@ const client = new MongoClient(uri, {
 import mongoose from "mongoose"
 import multer from "multer"
 import fs from "fs"
-import ImageModel from "./models.js"
+import ImageModel from "./imgmodel.js"
+import PortfolioModel from "./models.js"
 
 mongoose
   .connect(
@@ -59,12 +60,12 @@ async function run() {
 //IMAGES GET/POST PROFILE 
 
 
-app.post("/profil_image", [verify], upload.single("image"),  async (req, res) => {
+app.post("/profile_image", [verify], upload.single("image"),  async (req, res) => {
   await client.connect()
   let database = client.db('myportfolio'); 
   database.collection("images").deleteOne({"userEmail": req.jwt.email});
   
-  const saveImage =  ImageModel({
+  const saveImage = ImageModel({
     name: req.body.name,
     userEmail: req.jwt.email,
     img: {
@@ -83,7 +84,7 @@ app.post("/profil_image", [verify], upload.single("image"),  async (req, res) =>
     res.send('image is saved')
 });
 
-app.get('/profil_image', [verify], async (req,res)=>{
+app.get('/profile_image', [verify], async (req,res)=>{
   const allData = await ImageModel.find({userEmail: req.jwt.email})
   res.json(allData)
 })
@@ -99,26 +100,25 @@ function uploadFiles(req, res) {
 }
 
 
-app.post("/portfolio_images", [verify], upload.array("images", 2),  async (req, res) => {  
-    const saveImage =  ImageModel({
-    name: req.body.name,
-    userEmail: req.jwt.email,
-    img: {
-      data: fs.readFileSync("uploads/" + req.file.filename),
-      contentType: "image/png",
-    },
-  });
-  saveImage
-    .save()
-    .then((res) => {
-      console.log("image is saved");
+app.post("/portfolio_images", [verify], upload.array("images", 5),  async (req, res) => {  
+    
+  req.files.map((file) => {
+      const saveImages =  PortfolioModel({
+        name: req.body.name,
+        userEmail: req.jwt.email,
+        portfolioName: req.body.portfolioName,
+        img: {
+          data: fs.readFileSync("uploads/" + file.filename),
+          contentType: "image/png",
+        },
+      });
+      saveImages.save()
     })
-    .catch((err) => {
-      console.log(err, "error has occur");
-    });
-    res.send('image is saved')
+    
+  res.json({ message: "Successfully uploaded files" });
+  
 
-    uploadFiles(req, res)
+    /* uploadFiles(req, res) */
 });
 
 app.get('/portfolio_images', [verify], async (req,res)=>{
