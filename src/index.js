@@ -55,9 +55,11 @@ const storage = multer.diskStorage({
 
 async function run() {
 
-//IMAGES POST/GET
 
-app.post("/image", [verify], upload.single("image"),  async (req, res) => {
+//IMAGES GET/POST PROFILE 
+
+
+app.post("/profil_image", [verify], upload.single("image"),  async (req, res) => {
   await client.connect()
   let database = client.db('myportfolio'); 
   database.collection("images").deleteOne({"userEmail": req.jwt.email});
@@ -81,7 +83,45 @@ app.post("/image", [verify], upload.single("image"),  async (req, res) => {
     res.send('image is saved')
 });
 
-app.get('/image', [verify], async (req,res)=>{
+app.get('/profil_image', [verify], async (req,res)=>{
+  const allData = await ImageModel.find({userEmail: req.jwt.email})
+  res.json(allData)
+})
+
+
+//IMAGES GET/POST PORTFOLIO
+
+
+function uploadFiles(req, res) {
+  console.log(req.body);
+  console.log(req.files);
+  res.json({ message: "Successfully uploaded files" });
+}
+
+
+app.post("/portfolio_images", [verify], upload.array("images", 2),  async (req, res) => {  
+    const saveImage =  ImageModel({
+    name: req.body.name,
+    userEmail: req.jwt.email,
+    img: {
+      data: fs.readFileSync("uploads/" + req.file.filename),
+      contentType: "image/png",
+    },
+  });
+  saveImage
+    .save()
+    .then((res) => {
+      console.log("image is saved");
+    })
+    .catch((err) => {
+      console.log(err, "error has occur");
+    });
+    res.send('image is saved')
+
+    uploadFiles(req, res)
+});
+
+app.get('/portfolio_images', [verify], async (req,res)=>{
   const allData = await ImageModel.find({userEmail: req.jwt.email})
   res.json(allData)
 })
