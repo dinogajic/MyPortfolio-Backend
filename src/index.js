@@ -86,7 +86,7 @@ app.get('/profile_image', [verify], async (req,res)=>{
   await client.connect()
   let database = client.db('myportfolio');
 
-  let profile_image = await database.collection("images").findOne({userEmail: req.jwt.email})
+  let profile_image = await database.collection("profile_images").findOne({userEmail: req.jwt.email})
 
   res.json(profile_image)
 })
@@ -117,7 +117,7 @@ app.get('/portfolio_images', [verify], async (req, res)=>{
   await client.connect()
   let database = client.db('myportfolio');
 
-  let portfolio_images = await database.collection("portfolios").find({userEmail: req.jwt.email}).toArray()
+  let portfolio_images = await database.collection("portfolio_images").find({userEmail: req.jwt.email}).toArray()
 
   res.json(portfolio_images)
 })
