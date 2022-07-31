@@ -85,19 +85,16 @@ app.post("/profile_image", [verify], upload.single("image"),  async (req, res) =
 });
 
 app.get('/profile_image', [verify], async (req,res)=>{
-  const allData = await ImageModel.find({userEmail: req.jwt.email})
-  res.json(allData)
+  await client.connect()
+  let database = client.db('myportfolio');
+
+  let profile_image = await database.collection("images").findOne({userEmail: req.jwt.email})
+
+  res.json(profile_image)
 })
 
 
 //IMAGES GET/POST PORTFOLIO
-
-
-function uploadFiles(req, res) {
-  console.log(req.body);
-  console.log(req.files);
-  res.json({ message: "Successfully uploaded files" });
-}
 
 
 app.post("/portfolio_images", [verify], upload.array("images", 5),  async (req, res) => {  
@@ -116,14 +113,15 @@ app.post("/portfolio_images", [verify], upload.array("images", 5),  async (req, 
     })
     
   res.json({ message: "Successfully uploaded files" });
-  
-
-    /* uploadFiles(req, res) */
 });
 
-app.get('/portfolio_images', [verify], async (req,res)=>{
-  const allData = await ImageModel.find({userEmail: req.jwt.email})
-  res.json(allData)
+app.get('/portfolio_images', [verify], async (req, res)=>{
+  await client.connect()
+  let database = client.db('myportfolio');
+
+  let portfolio_images = await database.collection("portfolios").find({userEmail: req.jwt.email}).toArray()
+
+  res.json(portfolio_images)
 })
 
 
