@@ -52,8 +52,6 @@ const storage = multer.diskStorage({
 
 
 
-
-
 async function run() {
 
 
@@ -63,7 +61,7 @@ async function run() {
 app.post("/profile_image", [verify], upload.single("image"),  async (req, res) => {
   await client.connect()
   let database = client.db('myportfolio'); 
-  database.collection("images").deleteOne({"userEmail": req.jwt.email});
+  await database.collection("profile_images").deleteOne({"userEmail": req.jwt.email});
   
   const saveImage = ProfileModel({
     name: req.body.name,
