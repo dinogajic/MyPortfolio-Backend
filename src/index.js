@@ -29,8 +29,8 @@ const client = new MongoClient(uri, {
 import mongoose from "mongoose"
 import multer from "multer"
 import fs from "fs"
-import ImageModel from "./imgmodel.js"
-import PortfolioModel from "./models.js"
+import ProfileModel from "./profile_image.js"
+import PortfolioModel from "./portfolio_images.js"
 
 mongoose
   .connect(
@@ -65,7 +65,7 @@ app.post("/profile_image", [verify], upload.single("image"),  async (req, res) =
   let database = client.db('myportfolio'); 
   database.collection("images").deleteOne({"userEmail": req.jwt.email});
   
-  const saveImage = ImageModel({
+  const saveImage = ProfileModel({
     name: req.body.name,
     userEmail: req.jwt.email,
     img: {
