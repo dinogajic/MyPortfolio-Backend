@@ -96,20 +96,48 @@ app.get('/profile_image', [verify], async (req,res)=>{
 
 
 app.post("/portfolio_images", [verify], upload.array("images", 5),  async (req, res) => {  
+
+  await client.connect()
+  let database = client.db('myportfolio'); 
     
-  req.files.map((file) => {
-      const saveImages =  PortfolioModel({
+  const response = await database.collection("portfolio_images").insertOne({
         name: req.body.name,
         userEmail: req.jwt.email,
         portfolioName: req.body.portfolioName,
-        img: {
+/*         ImagesArray: req.files.map((file) => {[
+        {
           data: fs.readFileSync("uploads/" + file.filename),
           contentType: "image/png",
         },
-      });
-      saveImages.save()
+      ]}), */
+      ImagesArray: req.files.map((file) => {
+       [
+        /* console.log(file.filename), */
+       {
+          data: file.filename/* fs.readFileSync("uploads/" + file.filename) */,
+          contentType: "image/png",
+        }
+       ] 	
+      })
     })
-    
+
+     /*  const saveImages =  PortfolioModel({
+        name: req.body.name,
+        userEmail: req.jwt.email,
+        portfolioName: req.body.portfolioName,
+      });
+      req.files.map((file) => {
+        const saveImages2 =  PortfolioModel({
+          ImagesArray: [
+            {
+              data: fs.readFileSync("uploads/" + file.filename),
+              contentType: "image/png",
+            },
+          ]
+        })
+      saveImages.save()
+      })
+     */
   res.json({ message: "Successfully uploaded files" });
 });
 
