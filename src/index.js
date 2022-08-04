@@ -29,8 +29,7 @@ const client = new MongoClient(uri, {
 import mongoose from "mongoose"
 import multer from "multer"
 import fs from "fs"
-import ProfileModel from "./profile_image.js"
-import PortfolioModel from "./portfolio_images.js"
+
 
 mongoose
   .connect(
