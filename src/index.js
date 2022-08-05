@@ -85,42 +85,6 @@ app.get('/profile_image', [verify], async (req,res)=>{
 })
 
 
-//IMAGES GET/POST PORTFOLIO
-
-
-app.post("/portfolio_images", [verify], upload.array("images", 5),  async (req, res) => {  
-
-  await client.connect()
-  let database = client.db('myportfolio'); 
-  
-  let imgArray = []
-  req.files.map((file) => {
-    imgArray.push({
-        data: fs.readFileSync("uploads/" + file.filename),
-        contentType: "image/png",
-    })
-  })
-
-  const response = await database.collection("portfolio_images").insertOne({
-  
-        name: req.body.name,
-        userEmail: req.jwt.email,
-        portfolioName: req.body.portfolioName,
-        imagesArray: imgArray
-    })
-  res.json({ message: "Successfully uploaded files" });
-});
-
-app.get('/portfolio_images', [verify], async (req, res)=>{
-  await client.connect()
-  let database = client.db('myportfolio');
-
-  let portfolio_images = await database.collection("portfolio_images").find({userEmail: req.jwt.email}).toArray()
-
-  res.json(portfolio_images)
-})
-
-
 //REGISTRATION
 
 
@@ -239,10 +203,18 @@ app.get("/portfolio", [verify], async(req, res) => {
     res.json(doc);
   })
 
-app.post("/portfolio", [verify], async (req, res) => {
+app.post("/portfolio", [verify], upload.array("images", 5), async (req, res) => {
   let data = req.body;
   await client.connect()
   let database = client.db('myportfolio'); 
+  
+  let imgArray = []
+  req.files.map((file) => {
+    imgArray.push({
+        data: fs.readFileSync("uploads/" + file.filename),
+        contentType: "image/png",
+    })
+  })
   
   try {
     const response = await database.collection("portfolio").insertOne({
@@ -251,7 +223,8 @@ app.post("/portfolio", [verify], async (req, res) => {
       projectDescription: data.projectDescription,
       projectLinks: data.projectLinks,
       userEmail: req.jwt.email,
-      template: data.templateChoice
+      template: data.templateChoice,
+      imagesArray: imgArray
     });
 
     console.log(response)
