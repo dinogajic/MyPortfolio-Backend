@@ -61,24 +61,16 @@ app.post("/profile_image", [verify], upload.single("image"),  async (req, res) =
   await client.connect()
   let database = client.db('myportfolio'); 
   await database.collection("profile_images").deleteOne({"userEmail": req.jwt.email});
-  
-  const saveImage = ProfileModel({
+
+  const response = await database.collection("profile_images").insertOne({
     name: req.body.name,
     userEmail: req.jwt.email,
     img: {
       data: fs.readFileSync("uploads/" + req.file.filename),
       contentType: "image/png",
     },
-  });
-  saveImage
-    .save()
-    .then((res) => {
-      console.log("image is saved");
-    })
-    .catch((err) => {
-      console.log(err, "error has occur");
-    });
-    res.send('image is saved')
+ })
+  res.json(response)
 });
 
 app.get('/profile_image', [verify], async (req,res)=>{
@@ -137,7 +129,16 @@ app.post("/register", async (req, res) => {
     let data = req.body;
     await client.connect()
     let database = client.db('myportfolio'); 
-    
+
+    const response = await database.collection("profile_images").insertOne({
+      name: "default profile picture",
+      userEmail: data.email,
+      img: {
+        data: fs.readFileSync("uploads/profile_pic.png"),
+        contentType: "image/png",
+      },
+   })
+   
     try {
       await database.collection("user").createIndex({email: 1}, {unique: true})
   
