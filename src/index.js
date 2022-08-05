@@ -94,13 +94,10 @@ app.post("/portfolio_images", [verify], upload.array("images", 5),  async (req, 
   let imgArray = []
   req.files.map((file) => {
     imgArray.push({
-      img: {
         data: fs.readFileSync("uploads/" + file.filename),
         contentType: "image/png",
-        }
     })
   })
-  console.log(imgArray)
 
   const response = await database.collection("portfolio_images").insertOne({
   
