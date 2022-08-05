@@ -180,7 +180,7 @@ app.get("/user", [verify], async(req, res) => {
       res.json(doc);
   })
   
-app.patch("/user/:id", async (req, res) => {
+app.patch("/user/:id", [verify], async (req, res) => {
     let data = req.body;
     let id = req.params.id
     await client.connect()
@@ -235,13 +235,30 @@ app.post("/portfolio", [verify], upload.array("images", 5), async (req, res) => 
   }
 });
 
-app.patch("/portfolio/:id", [verify], async (req, res) => {
+app.patch("/portfolio/:id", [verify], upload.array("images", 5), async (req, res) => {
   let data = req.body;
   let id = req.params.id
   await client.connect()
   let database = client.db('myportfolio'); 
 
-  const response = await database.collection("portfolio").updateOne({_id: ObjectId(id)}, { $set: data });
+  let imgArray = []
+  req.files.map((file) => {
+    imgArray.push({
+        data: fs.readFileSync("uploads/" + file.filename),
+        contentType: "image/png",
+    })
+  })
+
+  const response = await database.collection("portfolio").updateOne({_id: ObjectId(id)}, { 
+    $set: {
+      projectTitle: data.projectTitle,
+      projectSubtitle: data.projectSubtitle,
+      projectDescription: data.projectDescription,
+      projectLinks: data.projectLinks,
+      userEmail: req.jwt.email,
+      template: data.templateChoice,
+      imagesArray: imgArray
+    } });
   console.log(response.modifiedCount)
   res.json(response)
   });
