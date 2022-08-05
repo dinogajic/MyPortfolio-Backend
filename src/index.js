@@ -17,15 +17,17 @@ app.use(express.json())
 const port = 3000;
 app.listen(process.env.PORT || port)
 
-const uri =
-"mongodb+srv://myportfolio-wa:webappsprojekt@myportfolio.ieynb.mongodb.net/?retryWrites=true&w=majority";
+//MONGODB
+
+const uri = process.env.MONGODB_URL;
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
 
 
-//
+//MONGOOSE
+
 import mongoose from "mongoose"
 import multer from "multer"
 import fs from "fs"
@@ -33,7 +35,7 @@ import fs from "fs"
 
 mongoose
   .connect(
-    "mongodb+srv://myportfolio-wa:webappsprojekt@myportfolio.ieynb.mongodb.net/myportfolio?retryWrites=true&w=majority", {
+    process.env.MONGOOSE_URL, {
     useNewUrlParser: true, 
     useUnifiedTopology: true 
   })
