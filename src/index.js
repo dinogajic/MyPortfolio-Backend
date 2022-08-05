@@ -263,6 +263,14 @@ app.patch("/portfolio/:id", [verify], upload.array("images", 5), async (req, res
   res.json(response)
   });
  
+app.delete("/portfolio/:id", [verify], async (req, res) => {
+    let id = req.params.id
+    await client.connect()
+    let database = client.db('myportfolio'); 
+    const response = await database.collection("portfolio").deleteOne({_id: ObjectId(id)});
+    res.json("Portfolio deleted")
+    });
+
 //FUNCTIONS
 
 
