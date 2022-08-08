@@ -53,38 +53,6 @@ const storage = multer.diskStorage({
 
 
 
-async function run() {
-
-
-//IMAGES GET/POST PROFILE 
-
-
-app.post("/profile_image", [verify], upload.single("image"),  async (req, res) => {
-  await client.connect()
-  let database = client.db('myportfolio'); 
-  await database.collection("profile_images").deleteOne({"userEmail": req.jwt.email});
-
-  const response = await database.collection("profile_images").insertOne({
-    name: req.body.name,
-    userEmail: req.jwt.email,
-    img: {
-      data: fs.readFileSync("uploads/" + req.file.filename),
-      contentType: "image/png",
-    },
- })
-  res.json(response)
-});
-
-app.get('/profile_image', [verify], async (req,res)=>{
-  await client.connect()
-  let database = client.db('myportfolio');
-
-  let profile_image = await database.collection("profile_images").findOne({userEmail: req.jwt.email})
-
-  res.json(profile_image)
-})
-
-
 //REGISTRATION
 
 
@@ -93,7 +61,7 @@ app.post("/register", async (req, res) => {
     await client.connect()
     let database = client.db('myportfolio'); 
 
-    const response = await database.collection("profile_images").insertOne({
+    const profile_image_register = await database.collection("profile_images").insertOne({
       name: "default profile picture",
       userEmail: data.email,
       img: {
@@ -105,7 +73,7 @@ app.post("/register", async (req, res) => {
     try {
       await database.collection("user").createIndex({email: 1}, {unique: true})
   
-      const response = await database.collection("user").insertOne({
+      const register_response = await database.collection("user").insertOne({
         email: data.email,
         password: await bcryptjs.hash(data.password, 8),
         firstName: data.firstName,
@@ -118,14 +86,12 @@ app.post("/register", async (req, res) => {
           education: data.education,
         }
       });
-  
-      console.log("User created successfully");
       res.json("User created successfully");
     } catch (error) {
       if (error.code == 11000) {
-        return res.json({ status: "error", msg: "User already exist." });
+        return res.json({ status: "ERROR", msg: "User already exist." });
       }
-      return res.json({ status: "error" });
+      return res.json({ status: "ERROR" });
     }
   });
 
@@ -137,7 +103,7 @@ app.post("/auth", async (req, res) => {
     let data = req.body
     await client.connect()
     let database = client.db('myportfolio')
-  
+
     let user = await database.collection("user").findOne({email: data.email})
   
     if(user && user.password && (await bcryptjs.compare(data.password, user.password))) {
@@ -161,11 +127,11 @@ app.post("/auth", async (req, res) => {
   
   
   
-app.get("/authsec", [verify], (req, res) => {
+/* app.get("/authsec", [verify], (req, res) => {
   
     res.json({ message: "Korisnik: " + req.jwt._id})
   
-    })
+    }) */
 
 
 //USER
@@ -175,9 +141,10 @@ app.get("/user", [verify], async(req, res) => {
     await client.connect()
     let database = client.db('myportfolio');
     
-    let doc = await database.collection("user").findOne({email: req.jwt.email})
+    let user_response = await database.collection("user").findOne({email: req.jwt.email})
 
-      res.json(doc);
+    /* res.json("User: " + req.jwt.email); */
+    res.json(user_response)
   })
   
 app.patch("/user/:id", [verify], async (req, res) => {
@@ -185,10 +152,45 @@ app.patch("/user/:id", [verify], async (req, res) => {
     let id = req.params.id
     await client.connect()
     let database = client.db('myportfolio'); 
+    
+    try {
     const response = await database.collection("user").updateOne({_id: ObjectId(id)}, { $set: data });
-    console.log(response.modifiedCount)
-    res.json(response)
+
+      res.json("User information has successfully updated");
+    } catch (error) {
+      res.json({ status: "ERROR", msg: "Update error" });
+    }
     });
+
+
+//IMAGES GET/POST PROFILE 
+
+
+app.post("/profile_image", [verify], upload.single("image"),  async (req, res) => {
+  await client.connect()
+  let database = client.db('myportfolio'); 
+
+  await database.collection("profile_images").deleteOne({"userEmail": req.jwt.email});
+
+  const profile_image_response = await database.collection("profile_images").insertOne({
+    name: req.body.name,
+    userEmail: req.jwt.email,
+    img: {
+      data: fs.readFileSync("uploads/" + req.file.filename),
+      contentType: "image/png",
+    },
+ })
+  res.json(profile_image_response)
+});
+
+app.get('/profile_image', [verify], async (req,res)=>{
+  await client.connect()
+  let database = client.db('myportfolio');
+
+  let profile_image = await database.collection("profile_images").findOne({userEmail: req.jwt.email})
+
+  res.json(profile_image)
+})
 
 
 //PORTFOLIO
@@ -198,9 +200,9 @@ app.get("/portfolio", [verify], async(req, res) => {
     await client.connect()
     let database = client.db('myportfolio');
     
-    let doc = await database.collection("portfolio").find({userEmail: req.jwt.email}).toArray()
+    let portfolio_respons = await database.collection("portfolio").find({userEmail: req.jwt.email}).toArray()
 
-    res.json(doc);
+    res.json(portfolio_respons);
   })
 
 app.post("/portfolio", [verify], upload.array("images", 5), async (req, res) => {
@@ -227,9 +229,6 @@ app.post("/portfolio", [verify], upload.array("images", 5), async (req, res) => 
       imagesArray: imgArray
     });
 
-    console.log(response)
-
-    console.log("Portfolio created successfully");
     res.json("Portfolio created successfully");
   } catch (error) {
   }
@@ -249,7 +248,7 @@ app.patch("/portfolio/:id", [verify], upload.array("images", 5), async (req, res
     })
   })
 
-  const response = await database.collection("portfolio").updateOne({_id: ObjectId(id)}, { 
+  const portfolio_update_response = await database.collection("portfolio").updateOne({_id: ObjectId(id)}, { 
     $set: {
       projectTitle: data.projectTitle,
       projectSubtitle: data.projectSubtitle,
@@ -259,15 +258,14 @@ app.patch("/portfolio/:id", [verify], upload.array("images", 5), async (req, res
       template: data.templateChoice,
       imagesArray: imgArray
     } });
-  console.log(response.modifiedCount)
-  res.json(response)
+    res.json(portfolio_update_response)
   });
  
 app.delete("/portfolio/:id", [verify], async (req, res) => {
     let id = req.params.id
     await client.connect()
     let database = client.db('myportfolio'); 
-    const response = await database.collection("portfolio").deleteOne({_id: ObjectId(id)});
+    const portfolio_delete_response = await database.collection("portfolio").deleteOne({_id: ObjectId(id)});
     res.json("Portfolio deleted")
     });
 
@@ -280,8 +278,6 @@ function verify(req, res, next) {
     let type = authorization[0]
     let token =  authorization[1]
   
-    console.log(type, token)  
-  
     if(type !== "Bearer") {
       res.status(401).send()
       return false
@@ -292,12 +288,7 @@ function verify(req, res, next) {
     }
     }
     catch(error) {
-      res.status(403).send()
+      res.status(403).send({ status: "Error", msg: "Forbidden" })
       return false
     }
 }
-
-}
-run().catch(console.dir);
-
-
