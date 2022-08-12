@@ -72,21 +72,26 @@ app.post("/register", async (req, res) => {
    
     try {
       await database.collection("user").createIndex({email: 1}, {unique: true})
-  
-      const register_response = await database.collection("user").insertOne({
-        email: data.email,
-        password: await bcryptjs.hash(data.password, 8),
-        firstName: data.firstName,
-        lastName: data.lastName,
-        userData: {
-          country: data.country,
-          mobile_number: data.mobile_number,
-          address: data.address,
-          postcode: data.postcode,
-          education: data.education,
-        }
-      });
-      res.json("User created successfully");
+
+      if (data.email == null || data.password == null || data.firstName == null || data.lastName == null) {
+
+        return res.json({ status: "ERROR", msg: "IF ERROR" });
+
+      } else {
+        const register_response = await database.collection("user").insertOne({
+          email: data.email,
+          password: await bcryptjs.hash(data.password, 8),
+          firstName: data.firstName,
+          lastName: data.lastName,
+          userData: {
+            country: data.country,
+            mobile_number: data.mobile_number,
+            address: data.address,
+            postcode: data.postcode,
+            education: data.education,
+          }
+        });
+        res.json("User created successfully");}
     } catch (error) {
       if (error.code == 11000) {
         return res.json({ status: "ERROR", msg: "User already exist." });
@@ -120,7 +125,7 @@ app.post("/auth", async (req, res) => {
       return true
     }
     else {
-      res.status(401).send({ status: "Auth error", msg: "Cannot authenticate" })
+      res.status(401).send({ status: "Auth error", msg: "Please provide a valid email address and password." })
       return false
     }
   })
@@ -219,7 +224,21 @@ app.post("/portfolio", [verify], upload.array("images", 5), async (req, res) => 
   })
   
   try {
-    const response = await database.collection("portfolio").insertOne({
+
+    if(data.tamplateChoice == 1) {
+      const response = await database.collection("portfolio").insertOne({
+        designPortfolioTitle: data.designPortfolio.title,
+        designPortfolioDescription: data.designPortfolio.description,
+        designPortfolioLinks: data.designPortfolio.links,
+        userEmail: req.jwt.email,
+        template: data.templateChoice,
+        imagesArray: imgArray
+      });
+  
+      res.json("Design portfolio created successfully");
+    }
+
+/*     const response = await database.collection("portfolio").insertOne({
       projectTitle: data.projectTitle,
       projectSubtitle: data.projectSubtitle,
       projectDescription: data.projectDescription,
@@ -229,7 +248,7 @@ app.post("/portfolio", [verify], upload.array("images", 5), async (req, res) => 
       imagesArray: imgArray
     });
 
-    res.json("Portfolio created successfully");
+    res.json("Portfolio created successfully"); */
   } catch (error) {
   }
 });
