@@ -225,19 +225,18 @@ app.post("/portfolio", [verify], upload.array("images", 5), async (req, res) => 
   
   try {
 
-    if(data.tamplateChoice == 1) {
+    if (data.templateChoice == 1) {
       const response = await database.collection("portfolio").insertOne({
-        designPortfolioTitle: data.designPortfolio.title,
-        designPortfolioDescription: data.designPortfolio.description,
-        designPortfolioLinks: data.designPortfolio.links,
+        designPortfolioTitle: data.designPortfolioTitle,
+        designPortfolioDescription: data.designPortfolioDescription,
+        designPortfolioLinks: data.designPortfolioLinks,
         userEmail: req.jwt.email,
         template: data.templateChoice,
         imagesArray: imgArray
       });
-  
+
       res.json("Design portfolio created successfully");
     }
-
 /*     const response = await database.collection("portfolio").insertOne({
       projectTitle: data.projectTitle,
       projectSubtitle: data.projectSubtitle,
