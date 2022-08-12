@@ -211,7 +211,7 @@ app.get("/portfolio", [verify], async(req, res) => {
     res.json(portfolio_respons);
   })
 
-app.post("/portfolio", [verify], upload.array("images", 5), async (req, res) => {
+app.post("/portfolio", [verify], upload.array("images", 10), async (req, res) => {
   let data = req.body;
   await client.connect()
   let database = client.db('myportfolio'); 
