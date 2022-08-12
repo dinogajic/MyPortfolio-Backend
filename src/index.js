@@ -268,7 +268,7 @@ app.post("/portfolio", [verify], upload.array("images", 5), async (req, res) => 
   }
 });
 
-app.patch("/portfolio/:id", [verify], upload.array("images", 5), async (req, res) => {
+app.patch("/portfolio/:id", [verify], upload.array("images", 10), async (req, res) => {
   let data = req.body;
   let id = req.params.id
   await client.connect()
