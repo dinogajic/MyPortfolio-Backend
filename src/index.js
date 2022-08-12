@@ -73,7 +73,8 @@ app.post("/register", async (req, res) => {
     try {
       await database.collection("user").createIndex({email: 1}, {unique: true})
 
-      if (data.email == null || data.password == null || data.firstName == null || data.lastName == null) {
+      if ((data.email == null || data.password == null || data.firstName == null || data.lastName == null) ||
+          (data.email == " " || data.password == " " || data.firstName == " " || data.lastName == " ")) {
 
         return res.json({ status: "ERROR", msg: "IF ERROR" });
 
@@ -237,17 +238,32 @@ app.post("/portfolio", [verify], upload.array("images", 5), async (req, res) => 
 
       res.json("Design portfolio created successfully");
     }
-/*     const response = await database.collection("portfolio").insertOne({
-      projectTitle: data.projectTitle,
-      projectSubtitle: data.projectSubtitle,
-      projectDescription: data.projectDescription,
-      projectLinks: data.projectLinks,
-      userEmail: req.jwt.email,
-      template: data.templateChoice,
-      imagesArray: imgArray
-    });
+    else if (data.templateChoice == 2) {
+      const response = await database.collection("portfolio").insertOne({
+        softwarePortfolioTitle: data.softwarePortfolioTitle,
+        softwarePortfolioDescription: data.softwarePortfolioDescription,
+        softwarePortfolioLinks: data.softwarePortfolioLinks,
+        userEmail: req.jwt.email,
+        template: data.templateChoice,
+        imagesArray: imgArray
+      });
 
-    res.json("Portfolio created successfully"); */
+      res.json("Software portfolio created successfully");
+    }
+    else if (data.templateChoice == 3) {
+      const response = await database.collection("portfolio").insertOne({
+        photoGalleryTitle: data.photoGalleryTitle,
+        photoGalleryDescription: data.photoGalleryDescription,
+        userEmail: req.jwt.email,
+        template: data.templateChoice,
+        imagesArray: imgArray
+      });
+
+      res.json("PhotoGallery portfolio created successfully");
+    }
+    else {
+      return res.json({ status: "ERROR", msg: "Failed to create a portfolio" });
+    }
   } catch (error) {
   }
 });
