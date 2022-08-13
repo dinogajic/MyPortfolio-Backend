@@ -60,23 +60,13 @@ app.post("/register", async (req, res) => {
     let data = req.body;
     await client.connect()
     let database = client.db('myportfolio'); 
-
-    const profile_image_register = await database.collection("profile_images").insertOne({
-      name: "default profile picture",
-      userEmail: data.email,
-      img: {
-        data: fs.readFileSync("uploads/profile_pic.png"),
-        contentType: "image/png",
-      },
-   })
    
     try {
       await database.collection("user").createIndex({email: 1}, {unique: true})
 
-      if ((data.email == null || data.password == null || data.firstName == null || data.lastName == null) ||
-          (data.email == " " || data.password == " " || data.firstName == " " || data.lastName == " ")) {
+      if (data.email == null || data.password == null || data.firstName == null || data.lastName == null) {
 
-        return res.json({ status: "ERROR", msg: "IF ERROR" });
+        return res.json({ status: "ERROR", msg: "Form contains null values" });
 
       } else {
         const register_response = await database.collection("user").insertOne({
@@ -92,10 +82,20 @@ app.post("/register", async (req, res) => {
             education: data.education,
           }
         });
-        res.json("User created successfully");}
+
+        const profile_image_register = await database.collection("profile_images").insertOne({
+          name: "default profile picture",
+          userEmail: data.email,
+          img: {
+            data: fs.readFileSync("uploads/profile_pic.png"),
+            contentType: "image/png",
+          },
+       })
+
+        return res.json({msg: "Profile successfully created."});}
     } catch (error) {
       if (error.code == 11000) {
-        return res.json({ status: "ERROR", msg: "User already exist." });
+       return res.json({ status: "ERROR", msg: "User already exist." });
       }
       return res.json({ status: "ERROR" });
     }
@@ -110,6 +110,11 @@ app.post("/auth", async (req, res) => {
     await client.connect()
     let database = client.db('myportfolio')
 
+    if (data.email == null || data.password == null) {
+
+      return res.json({ status: "ERROR", msg: "Form contains null values" });
+
+    } else {    
     let user = await database.collection("user").findOne({email: data.email})
   
     if(user && user.password && (await bcryptjs.compare(data.password, user.password))) {
@@ -128,16 +133,9 @@ app.post("/auth", async (req, res) => {
     else {
       res.status(401).send({ status: "Auth error", msg: "Please provide a valid email address and password." })
       return false
-    }
+    }}
   })
   
-  
-  
-/* app.get("/authsec", [verify], (req, res) => {
-  
-    res.json({ message: "Korisnik: " + req.jwt._id})
-  
-    }) */
 
 
 //USER
@@ -149,7 +147,6 @@ app.get("/user", [verify], async(req, res) => {
     
     let user_response = await database.collection("user").findOne({email: req.jwt.email})
 
-    /* res.json("User: " + req.jwt.email); */
     res.json(user_response)
   })
   
@@ -162,9 +159,9 @@ app.patch("/user/:id", [verify], async (req, res) => {
     try {
     const response = await database.collection("user").updateOne({_id: ObjectId(id)}, { $set: data });
 
-      res.json("User information has successfully updated");
+      return res.json({msg: "User information has successfully updated"});
     } catch (error) {
-      res.json({ status: "ERROR", msg: "Update error" });
+      return res.json({ status: "ERROR", msg: "Update error" });
     }
     });
 
@@ -186,7 +183,7 @@ app.post("/profile_image", [verify], upload.single("image"),  async (req, res) =
       contentType: "image/png",
     },
  })
-  res.json(profile_image_response)
+  return res.json(profile_image_response)
 });
 
 app.get('/profile_image', [verify], async (req,res)=>{
@@ -236,7 +233,7 @@ app.post("/portfolio", [verify], upload.array("images", 10), async (req, res) =>
         imagesArray: imgArray
       });
 
-      res.json("Design portfolio created successfully");
+      return res.json({msg: "Design portfolio created successfully"});
     }
     else if (data.templateChoice == 2) {
       const response = await database.collection("portfolio").insertOne({
@@ -248,7 +245,7 @@ app.post("/portfolio", [verify], upload.array("images", 10), async (req, res) =>
         imagesArray: imgArray
       });
 
-      res.json("Software portfolio created successfully");
+      return res.json({msg: "Software portfolio created successfully"});
     }
     else if (data.templateChoice == 3) {
       const response = await database.collection("portfolio").insertOne({
@@ -259,7 +256,7 @@ app.post("/portfolio", [verify], upload.array("images", 10), async (req, res) =>
         imagesArray: imgArray
       });
 
-      res.json("PhotoGallery portfolio created successfully");
+      return res.json({msg: "PhotoGallery portfolio created successfully"});
     }
     else {
       return res.json({ status: "ERROR", msg: "Failed to create a portfolio" });
@@ -291,8 +288,9 @@ app.patch("/portfolio/:id", [verify], upload.array("images", 10), async (req, re
       userEmail: req.jwt.email,
       template: data.templateChoice,
       imagesArray: imgArray
-    } });
-    res.json(portfolio_update_response)
+    } 
+  });
+    return res.json({msg: "Portfolio information has successfully updated"});
   });
  
 app.delete("/portfolio/:id", [verify], async (req, res) => {
@@ -300,8 +298,9 @@ app.delete("/portfolio/:id", [verify], async (req, res) => {
     await client.connect()
     let database = client.db('myportfolio'); 
     const portfolio_delete_response = await database.collection("portfolio").deleteOne({_id: ObjectId(id)});
-    res.json("Portfolio deleted")
+    return res.json({msg: "Portfolio deleted"});
     });
+
 
 //FUNCTIONS
 
