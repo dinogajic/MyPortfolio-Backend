@@ -80,6 +80,7 @@ app.post("/register", async (req, res) => {
             address: data.address,
             postcode: data.postcode,
             education: data.education,
+            workExperience: data.workExperience
           }
         });
 
@@ -300,6 +301,14 @@ app.delete("/portfolio/:id", [verify], async (req, res) => {
     const portfolio_delete_response = await database.collection("portfolio").deleteOne({_id: ObjectId(id)});
     return res.json({msg: "Portfolio deleted."});
     });
+
+
+
+//CHANGE_PASSWORD
+
+
+app.patch("/change_password", [verify], async (req, res) => {
+})
 
 
 //FUNCTIONS
