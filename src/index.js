@@ -304,10 +304,85 @@ app.delete("/portfolio/:id", [verify], async (req, res) => {
 
 
 
-//CHANGE_PASSWORD
+//CHANGE PASSWORD
 
 
-app.patch("/change_password", [verify], async (req, res) => {
+app.post("/change_password", async (req, res) => {
+  let data = req.body
+
+  await client.connect()
+  let database = client.db('myportfolio'); 
+  let user_fgpass = await database.collection("user").findOne({email: data.email})
+
+  if(user_fgpass == null) {
+    res.json("User not registered")
+    return false
+  } else {
+  }
+
+  const secret = process.env.JWT_KEY + user_fgpass.password
+  const payload = {
+    email: user_fgpass.email,
+    id: user_fgpass._id
+  }
+  const token = jwt.sign(payload, secret, {expiresIn: "15 m"})
+
+  const link = `http://localhost:3000/change_password/${user_fgpass._id}/${token}`
+  res.json(link)
+})
+
+
+app.get("/change_password/:id/:token", async (req, res) => {
+  let data = req.params
+
+  await client.connect()
+  let database = client.db('myportfolio'); 
+  let user_fgpass = await database.collection("user").findOne({_id: ObjectId(data.id)})
+
+if(user_fgpass == null) {
+  res.json("Invalid id")
+  return false
+}
+
+const secret = process.env.JWT_KEY + user_fgpass.password
+
+try {
+  const payload = jwt.verify(data.token, secret)
+  res.json({email: user_fgpass.email})
+  
+} catch (error) {
+  res.json(error.message)
+}
+})
+
+app.post("/change_password/:id/:token", async (req, res) => {
+  let data = req.params
+  let data_pass = req.body
+
+  await client.connect()
+  let database = client.db('myportfolio'); 
+  let user_fgpass = await database.collection("user").findOne({_id: ObjectId(data.id)})
+
+if(user_fgpass == null) {
+  res.json("Invalid id")
+  return false
+}
+
+const secret = process.env.JWT_KEY + user_fgpass.password
+
+try {
+  const payload = jwt.verify(data.token, secret)
+
+ let pass = await bcryptjs.hash(data_pass.password, 8)
+
+  const response = await database.collection("user").updateOne({_id: ObjectId(data.id)}, { $set: {password: pass}});
+
+  res.json(response)
+  
+} catch (error) {
+  res.json(error.message)
+}
+
 })
 
 
