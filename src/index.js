@@ -8,6 +8,8 @@ import { MongoClient } from "mongodb"
 import { ObjectId } from "mongodb"
 import jwt from "jsonwebtoken"
 
+import nodemailer from "nodemailer"
+
 
 //EXPRESS AND CORS
 
@@ -329,6 +331,28 @@ app.post("/change_password", async (req, res) => {
 
   const link = `http://localhost:3000/change_password/${user_fgpass._id}/${token}`
   res.json(link)
+
+  let transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.GMAIL_USER, 
+      pass: process.env.GMAIL_PASSWORD, 
+    },
+    tls: {
+      rejectUnauthorized: false
+    }
+  });
+
+
+  let info = await transporter.sendMail({
+    from: process.env.GMAIL_USER, 
+    to: payload.email, 
+    subject: "MyPortfolio password reset", 
+    text: link, 
+    html: `<a href="${link}">Reset password</a>`,
+  });
+
+  console.log("Message sent: %s", info.messageId);
 })
 
 
@@ -383,6 +407,25 @@ try {
   res.json(error.message)
 }
 
+})
+
+
+//PUBLIC PAGE
+
+
+app.get("/public/:id", async(req, res) => {
+  let data = req.params
+
+  await client.connect()
+  let database = client.db('myportfolio');
+  
+  let public_user_response = await database.collection("user").findOne({_id: ObjectId(data.id)})
+  let public_portfolio_response = await database.collection("portfolio").find({userEmail: public_user_response.email}).toArray()
+
+  let public_data = []
+  public_data.push(public_user_response, public_portfolio_response)
+
+  res.json(public_data)
 })
 
 
