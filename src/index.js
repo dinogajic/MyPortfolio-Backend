@@ -429,7 +429,7 @@ try {
 
   res.json(public_data)  
 } catch (error) {
-  console.log(error)
+  return res.json({ status: "ERROR", msg: "User doesn't exist." });
 }
 })
 
