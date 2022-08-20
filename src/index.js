@@ -420,10 +420,12 @@ app.get("/public/:id", async(req, res) => {
   let database = client.db('myportfolio');
   
   let public_user_response = await database.collection("user").findOne({_id: ObjectId(data.id)})
+  let public_profile_image = await database.collection("profile_images").findOne({userEmail: public_user_response.email})
   let public_portfolio_response = await database.collection("portfolio").find({userEmail: public_user_response.email}).toArray()
+  
 
   let public_data = []
-  public_data.push(public_user_response, public_portfolio_response)
+  public_data.push(public_user_response, public_profile_image, public_portfolio_response)
 
   res.json(public_data)
 })
