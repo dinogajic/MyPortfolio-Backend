@@ -402,7 +402,7 @@ try {
 
   const response = await database.collection("user").updateOne({_id: ObjectId(data.id)}, { $set: {password: pass}});
 
-    return res.json({msg: "Password successfully changed."});
+    return res.json({msg: "Password change successfully ."});
   
 } catch (error) {
   res.json(error.message)
