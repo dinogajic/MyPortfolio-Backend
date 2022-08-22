@@ -329,7 +329,7 @@ app.post("/change-password", async (req, res) => {
   }
   const token = jwt.sign(payload, secret, {expiresIn: "15 m"})
 
-  const link = `http://localhost:8080/change-password/${user_fgpass._id}/${token}`
+  const link = `https://celebrated-croquembouche-5cec65.netlify.app/change-password/${user_fgpass._id}/${token}`
 
   
 
@@ -402,7 +402,7 @@ try {
 
   const response = await database.collection("user").updateOne({_id: ObjectId(data.id)}, { $set: {password: pass}});
 
-    return res.json({msg: "Password change successfully ."});
+    return res.json({msg: "Password changed successfully ."});
   
 } catch (error) {
   res.json(error.message)
