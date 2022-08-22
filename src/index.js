@@ -329,7 +329,7 @@ app.post("/change_password", async (req, res) => {
   }
   const token = jwt.sign(payload, secret, {expiresIn: "15 m"})
 
-  const link = `https://my-portfolio-wa.herokuapp.com/change_password/${user_fgpass._id}/${token}`
+  const link = `http://localhost:8080/change_password/${user_fgpass._id}/${token}`
   res.json(link)
 
   let transporter = nodemailer.createTransport({
