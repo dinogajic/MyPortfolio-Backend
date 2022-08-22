@@ -309,7 +309,7 @@ app.delete("/portfolio/:id", [verify], async (req, res) => {
 //CHANGE PASSWORD
 
 
-app.post("/change_password", async (req, res) => {
+app.post("/change-password", async (req, res) => {
   let data = req.body
 
   await client.connect()
@@ -329,8 +329,9 @@ app.post("/change_password", async (req, res) => {
   }
   const token = jwt.sign(payload, secret, {expiresIn: "15 m"})
 
-  const link = `http://localhost:8080/change_password/${user_fgpass._id}/${token}`
-  res.json(link)
+  const link = `http://localhost:8080/change-password/${user_fgpass._id}/${token}`
+
+  
 
   let transporter = nodemailer.createTransport({
     service: "gmail",
@@ -349,14 +350,14 @@ app.post("/change_password", async (req, res) => {
     to: payload.email, 
     subject: "MyPortfolio password reset", 
     text: link, 
-    html: `<a href="${link}">Reset password</a>`,
+    html: `<a href="${link}">Reset password</a>`
   });
 
-  console.log("Message sent: %s", info.messageId);
+  return res.json({msg: `Email sent to ${payload.email}.`});
 })
 
 
-app.get("/change_password/:id/:token", async (req, res) => {
+app.get("/change-password/:id/:token", async (req, res) => {
   let data = req.params
 
   await client.connect()
@@ -379,7 +380,7 @@ try {
 }
 })
 
-app.post("/change_password/:id/:token", async (req, res) => {
+app.post("/change-password/:id/:token", async (req, res) => {
   let data = req.params
   let data_pass = req.body
 
@@ -401,7 +402,7 @@ try {
 
   const response = await database.collection("user").updateOne({_id: ObjectId(data.id)}, { $set: {password: pass}});
 
-  res.json(response)
+    return res.json({msg: "Password successfully changed."});
   
 } catch (error) {
   res.json(error.message)
