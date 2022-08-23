@@ -380,7 +380,16 @@ app.post("/change-password", async (req, res) => {
     to: payload.email,
     subject: "MyPortfolio password reset",
     text: link,
-    html: `<a href="${link}">Reset password</a>`,
+    html: `
+    <div style="color: black;">
+    <p>Hi ${user_fgpass.firstName},</p>
+    <p>Forgot your password? \n We received a request to reset the password for your account.</p>
+    <p>To reset the password click on the button below:</p>
+    <button style="padding: 5px; border: none; border-radius: 5px; background: #089965;"><a style="text-decoration: none; color: white;" href="${link}">RESET PASSWORD</a></button>
+    <p>...or copy the link below:</p>
+    <p>${link}</p>
+
+    </div>`,
   });
 
   return res.json({ msg: `Email sent to ${payload.email}.` });
@@ -436,7 +445,7 @@ app.post("/change-password/:id/:token", async (req, res) => {
       .collection("user")
       .updateOne({ _id: ObjectId(data.id) }, { $set: { password: pass } });
 
-    return res.json({ msg: "Password changed successfully ." });
+    return res.json({ msg: "Password changed successfully." });
   } catch (error) {
     res.json(error.message);
   }
