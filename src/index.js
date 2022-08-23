@@ -388,7 +388,7 @@ app.post("/change-password", async (req, res) => {
     <button style="padding: 5px; border: none; border-radius: 5px; background: #089965;"><a style="text-decoration: none; color: white;" href="${link}">RESET PASSWORD</a></button>
     <p>...or copy the link below:</p>
     <p>${link}</p>
-
+    <p>If this wasn't you, contact us by an e-mail.</p>
     </div>`,
   });
 
