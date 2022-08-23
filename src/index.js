@@ -392,7 +392,9 @@ app.post("/change-password", async (req, res) => {
     </div>`,
   });
 
-  return res.json({ msg: `Email sent to ${payload.email}.` });
+  return res.json({
+    msg: `Email sent to ${payload.email}. Check your spam folder`,
+  });
 });
 
 app.get("/change-password/:id/:token", async (req, res) => {
