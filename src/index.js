@@ -500,7 +500,7 @@ app.get("/public/:id", async (req, res) => {
   }
 });
 
-app.get("/generate", [verify], async (req, res) => {
+app.get("/generate-link", [verify], async (req, res) => {
   await client.connect();
   let database = client.db("myportfolio");
 
