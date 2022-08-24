@@ -300,6 +300,27 @@ app.patch(
     await client.connect();
     let database = client.db("myportfolio");
 
+    const portfolio_update_response = await database
+      .collection("portfolio")
+      .updateOne(
+        { _id: ObjectId(id) },
+        {
+          $set: data
+        }
+      );
+    return res.json({ msg: "Portfolio information has successfully updated." });
+  }
+);
+
+app.patch(
+  "/portfolio-img/:id",
+  [verify],
+  upload.array("images", 10),
+  async (req, res) => {
+    let id = req.params.id;
+    await client.connect();
+    let database = client.db("myportfolio");
+
     let imgArray = [];
     req.files.map((file) => {
       imgArray.push({
@@ -314,17 +335,11 @@ app.patch(
         { _id: ObjectId(id) },
         {
           $set: {
-            projectTitle: data.projectTitle,
-            projectSubtitle: data.projectSubtitle,
-            projectDescription: data.projectDescription,
-            projectLinks: data.projectLinks,
-            userEmail: req.jwt.email,
-            template: data.templateChoice,
             imagesArray: imgArray,
           },
         }
       );
-    return res.json({ msg: "Portfolio information has successfully updated." });
+    return res.json({ msg: "Portfolio IIIIIIMMMMMMMMMMMMMMMMMMMGGGGGGGGGGGGGGGGGGGGG information has successfully updated." });
   }
 );
 
@@ -352,7 +367,6 @@ app.post("/change-password", async (req, res) => {
   if (user_fgpass == null) {
     res.json("User not registered");
     return false;
-  } else {
   }
 
   const secret = process.env.JWT_KEY + user_fgpass.password;
@@ -484,6 +498,20 @@ app.get("/public/:id", async (req, res) => {
   } catch (error) {
     return res.json({ status: "ERROR", msg: "User doesn't exist." });
   }
+});
+
+app.get("/generate", [verify], async (req, res) => {
+  await client.connect();
+  let database = client.db("myportfolio");
+
+  let user_generate = await database
+  .collection("user")
+  .findOne({ email: req.jwt.email });
+
+  const link = `https://celebrated-croquembouche-5cec65.netlify.app/public/${user_generate._id}`;
+
+  res.json(link)
+
 });
 
 //FUNCTIONS
