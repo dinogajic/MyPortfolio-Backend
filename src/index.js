@@ -339,7 +339,7 @@ app.patch(
           },
         }
       );
-    return res.json({ msg: "Portfolio IIIIIIMMMMMMMMMMMMMMMMMMMGGGGGGGGGGGGGGGGGGGGG information has successfully updated." });
+    return res.json({ msg: "Portfolio images has successfully updated." });
   }
 );
 
